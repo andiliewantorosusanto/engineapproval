@@ -1,14 +1,18 @@
 package com.bcafinance.engineapproval.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-@Data @Entity
+@Data @Entity @NoArgsConstructor @AllArgsConstructor
+@Table(name = "temp_ME_Approval_MasterTemplate")
 public class TempMasterTemplate {
     private @Id @GeneratedValue Long id;
     private int app_level;

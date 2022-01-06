@@ -10,10 +10,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Data @Entity @NoArgsConstructor @AllArgsConstructor
-@Table(name = "SP_ME_Approval_DetailDeviasi")
-public class DetailDeviasi {
+@Table(name = "SP_ME_Approval_Param_Field")
+public class ParamField {
     private @Id @GeneratedValue Long id;
-    private Long master_id;
-    private String kode_deviasi;
-    private String nama_deviasi;
+    private String fieldText;
+    private String fieldVal;
+    private String fieldSourceTable;
 }
