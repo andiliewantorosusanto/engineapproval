@@ -9,13 +9,14 @@ import java.sql.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Data @Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "temp_ME_Approval_PH")
 public class TempPh {
-    private @Id @GeneratedValue Long id;
+    private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;
     private int app_level;
     private BigDecimal ph_from;
     private BigDecimal ph_to;
