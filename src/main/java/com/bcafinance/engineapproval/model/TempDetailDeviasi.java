@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Data @Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "temp_ME_Approval_DetailDeviasi")
 public class TempDetailDeviasi {
-    private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;
+    private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) int id;
     private Long master_id;
     private String kode_deviasi;
     private String nama_deviasi;

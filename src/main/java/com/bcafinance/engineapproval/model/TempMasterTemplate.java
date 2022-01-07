@@ -15,9 +15,9 @@ import javax.persistence.Table;
 @Data @Entity @NoArgsConstructor @AllArgsConstructor
 @Table(name = "temp_ME_Approval_MasterTemplate")
 public class TempMasterTemplate {
-    private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;
+    private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) int id;
     private int app_level;
-    private int sts;
+    private int sts = 1;
     private Date start_berlaku;
     private Date end_berlaku;
     private int createdby;
