@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter @Getter
 public class CheckApprovalViewCompositeKey implements Serializable {
     private Integer appLevel;
-    private String jenisCheck;
+    private String errorCode;
 }

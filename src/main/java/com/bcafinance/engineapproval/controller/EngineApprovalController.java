@@ -1,7 +1,9 @@
 package com.bcafinance.engineapproval.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.bcafinance.engineapproval.constant.ErrorCode;
 import com.bcafinance.engineapproval.exception.ApprovalLevelNotFoundException;
@@ -17,6 +19,7 @@ import com.bcafinance.engineapproval.request.ApprovalRequest;
 import com.bcafinance.engineapproval.response.ApprovalResponse;
 import com.bcafinance.engineapproval.view.CheckApprovalView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,47 +53,23 @@ public class EngineApprovalController {
         ApprovalResponse response = new ApprovalResponse();
         LogApi logApi = new LogApi();
 
-        //LOGIC
         try {
             String token = UUID.randomUUID().toString();
-            System.out.println(token);
-            logApi = this.initLogApi(logApi, objectMapper.writeValueAsString(request), _TEMPORARY_USER_DELETE_THIS_LATER);
-            this.saveDeviasiRequest(request.getDeviasi(),token);
-            this.saveTemplateRequest(request.getTemplate(), token);
+            logger.info("Token Created : " + token);
 
+            logApi = this.initLogApi(logApi, objectMapper.writeValueAsString(request), _TEMPORARY_USER_DELETE_THIS_LATER);
+            
             if(!request.bodyIsValid()) { 
                 throw new InvalidBodyRequestException();
             }
-
-            Integer maxAppLevel = 0;
-            CheckApprovalView phApprovalResult = checkApprovalViewRepository.checkApprovalLevelPH(request.getPh());
-            if(phApprovalResult.getErrorCode().equals(ErrorCode.FAILED)) {
-                throw new ApprovalLevelNotFoundException(phApprovalResult);
-            }
             
-            System.out.println("PH Approval Level : "+ phApprovalResult.getAppLevel());
-            if(phApprovalResult.getAppLevel() > maxAppLevel) maxAppLevel = phApprovalResult.getAppLevel();
-
-            if(!request.getDeviasi().isEmpty()) {
-                CheckApprovalView deviasiApprovalResult = checkApprovalViewRepository.checkApprovalLevelDeviasi(token);
-                if(deviasiApprovalResult.getErrorCode().equals(ErrorCode.FAILED)) {
-                    throw new ApprovalLevelNotFoundException(deviasiApprovalResult);
-                }
-                System.out.println("Deviasi Approval Level : "+ deviasiApprovalResult.toString());
-                if(deviasiApprovalResult.getAppLevel() > maxAppLevel) maxAppLevel = deviasiApprovalResult.getAppLevel();
-            }
-
-            if(!request.getTemplate().isEmpty()) {
-                CheckApprovalView templateApprovalResult = checkApprovalViewRepository.checkApprovalLevelTemplate(token);
-                if(templateApprovalResult.getErrorCode().equals(ErrorCode.FAILED)) {
-                    throw new ApprovalLevelNotFoundException(templateApprovalResult);
-                }
-                System.out.println("Template Approval Level : "+ templateApprovalResult.toString());
-                if(templateApprovalResult.getAppLevel() > maxAppLevel) maxAppLevel = templateApprovalResult.getAppLevel();
-            }
+            //get maximum Application Level
+            Integer maxAppLevel = 0;
+            maxAppLevel = this.getApprovalLevelPh(request.getPh(), maxAppLevel);
+            maxAppLevel = this.getApprovalLevelDeviasi(request.getDeviasi(), maxAppLevel);
+            maxAppLevel = this.getApprovalLevelTemplate(request.getTemplate(), token, maxAppLevel);
 
             response.setSuccess("Approval Level Check Succcess", maxAppLevel);
-
         } catch(InvalidBodyRequestException e) {
             logger.error(e.toString());
             response.setError("Invalid Body Request");
@@ -110,19 +89,73 @@ public class EngineApprovalController {
 
         return response;
     }
-    
+
+    Integer getApprovalLevelPh(BigDecimal ph,Integer appLevel) 
+        throws ApprovalLevelNotFoundException {
+        try {
+            CheckApprovalView phApprovalResult = checkApprovalViewRepository.checkApprovalLevelPH(ph);
+            logger.info("Ph : " + phApprovalResult);
+            if(phApprovalResult.getErrorCode().equals(ErrorCode.FAILED)) {
+                throw new ApprovalLevelNotFoundException(phApprovalResult);
+            }
+            if(phApprovalResult.getAppLevel() > appLevel) appLevel = phApprovalResult.getAppLevel();
+        } catch (ApprovalLevelNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return appLevel;
+    }
+
+    Integer getApprovalLevelTemplate(List<TemplateParam> templateParams, String token,Integer appLevel) 
+        throws ApprovalLevelNotFoundException {
+        try {
+            if(!templateParams.isEmpty()) {
+                this.saveTemplateRequest(templateParams, token);
+                CheckApprovalView templateApprovalResult = checkApprovalViewRepository.checkApprovalLevelTemplate(token);
+                logger.info("Template : " + templateApprovalResult);
+                if(templateApprovalResult.getErrorCode().equals(ErrorCode.FAILED)) {
+                    throw new ApprovalLevelNotFoundException(templateApprovalResult);
+                }
+                if(templateApprovalResult.getAppLevel() > appLevel) appLevel = templateApprovalResult.getAppLevel();
+            }
+        } catch (ApprovalLevelNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw e;
+        }
+        
+        return appLevel;
+    }
+
+    Integer getApprovalLevelDeviasi(List<DeviasiParam> deviasiParams,Integer appLevel) 
+        throws ApprovalLevelNotFoundException {
+        try {
+            if(!deviasiParams.isEmpty()) {
+                List<String> kodeDeviasi =deviasiParams.stream().map(param -> param.getKodeDeviasi()).collect(Collectors.toList());
+                String stringKodeDeviasi = Joiner.on(',').join(kodeDeviasi);
+
+                CheckApprovalView deviasiApprovalResult = checkApprovalViewRepository.checkApprovalLevelDeviasi(stringKodeDeviasi);
+                logger.info("Deviasi : " + deviasiApprovalResult);
+                if(deviasiApprovalResult.getErrorCode().equals(ErrorCode.FAILED)) {
+                    throw new ApprovalLevelNotFoundException(deviasiApprovalResult);
+                }
+                if(deviasiApprovalResult.getAppLevel() > appLevel) appLevel = deviasiApprovalResult.getAppLevel();
+            }
+        } catch (ApprovalLevelNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return appLevel;
+    }
 
     void saveTemplateRequest(List<TemplateParam> templateParams, String token) {
         templateParams.forEach((templateParam) -> {
             templateParam.setToken(token);
             templateParamRepository.save(templateParam);
-        });
-    }
-
-    void saveDeviasiRequest(List<DeviasiParam> deviasiParams,String token) {
-        deviasiParams.forEach((deviasiParam) -> {
-            deviasiParam.setToken(token);
-            deviasiParamRepository.save(deviasiParam);
         });
     }
 

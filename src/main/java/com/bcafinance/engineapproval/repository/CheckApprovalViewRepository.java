@@ -14,8 +14,8 @@ public interface CheckApprovalViewRepository extends CrudRepository<CheckApprova
     @Query(value = "EXEC SP_Check_Approval_Level_PH :PH", nativeQuery = true)
     CheckApprovalView checkApprovalLevelPH(@Param("PH") BigDecimal PH);
 
-    @Query(value = "EXEC SP_Get_Result_Deviasi :token", nativeQuery = true)
-    CheckApprovalView checkApprovalLevelDeviasi(@Param("token") String token);
+    @Query(value = "EXEC SP_Get_Result_Deviasi :kodeDeviasi", nativeQuery = true)
+    CheckApprovalView checkApprovalLevelDeviasi(@Param("kodeDeviasi") String kodeDeviasi);
 
     @Query(value = "EXEC SP_Get_Result_Template :token", nativeQuery = true)
     CheckApprovalView checkApprovalLevelTemplate(@Param("token") String token);

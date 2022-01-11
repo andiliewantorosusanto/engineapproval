@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @IdClass(CheckApprovalViewCompositeKey.class)
 public class CheckApprovalView {
-    private String errorCode;
+    private @Id String errorCode;
     private String errorMessage;
     private @Id Integer appLevel;
-    private @Id String jenisCheck;
 }
