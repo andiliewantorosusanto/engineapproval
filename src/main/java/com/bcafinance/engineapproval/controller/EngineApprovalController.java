@@ -85,7 +85,7 @@ public class EngineApprovalController {
 
             //check if current role is valid for di application
             String currentApproverRole = this.getApprovalRoleApprover(Request.getNip());
-            Boolean isApproverRoleValid = (currentApproverRole == approverRole || approverRole == '');
+            Boolean isApproverRoleValid = (currentApproverRole == approverRole || approverRole == "");
 
             if(isApproverLevelValid && isApproverRoleValid) {
                 response.setSuccess("Approval Success");
