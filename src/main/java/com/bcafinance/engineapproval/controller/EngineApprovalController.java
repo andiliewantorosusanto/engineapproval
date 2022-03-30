@@ -1,10 +1,12 @@
 package com.bcafinance.engineapproval.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.bcafinance.engineapproval.constant.ApprovalLevel;
 import com.bcafinance.engineapproval.constant.ErrorCode;
 import com.bcafinance.engineapproval.exception.ApprovalLevelNotFoundException;
 import com.bcafinance.engineapproval.exception.InvalidBodyRequestException;
@@ -33,7 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class EngineApprovalController {
     
     private int _TEMPORARY_USER_DELETE_THIS_LATER = 1; 
-    
+    private int _MAX_APPROVAL_LEVEL = ApprovalLevel.PD;
+
     Logger logger = LoggerFactory.getLogger(EngineApprovalController.class);
 
     @Autowired
@@ -69,7 +72,27 @@ public class EngineApprovalController {
             maxAppLevel = this.getApprovalLevelDeviasi(request.getDeviasi(), maxAppLevel);
             maxAppLevel = this.getApprovalLevelTemplate(request.getTemplate(), token, maxAppLevel);
 
-            response.setSuccess("Approval Level Check Succcess", maxAppLevel);
+            //get current role needed for this application
+            String approverRole = "";
+            approverRole = this.getApprovalRoleDeviasi(Request.getDeviasi());
+
+            //get current apporver level
+            Integer currentApproverLevel = 0;
+            currentApproverLevel = this.getApprovalLevelApprover(Request.getNip());
+            
+            //check approval level Valid
+            Boolean isApproverLevelValid = (currentApproverLevel >= maxAppLevel);
+
+            //check if current role is valid for di application
+            String currentApproverRole = this.getApprovalRoleApprover(Request.getNip());
+            Boolean isApproverRoleValid = (currentApproverRole == approverRole || approverRole == '');
+
+            if(isApproverLevelValid && isApproverRoleValid) {
+                response.setSuccess("Approval Success");
+            } else {
+                response.setSuccess("Approval Failed");
+            }
+            
         } catch(InvalidBodyRequestException e) {
             logger.error(e.toString());
             response.setError("Invalid Body Request");
