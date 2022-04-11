@@ -13,7 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Data @Entity @NoArgsConstructor @AllArgsConstructor
-@Table(name = "SP_ME_Approval_MasterDeviasi")
+@Table(name = "SP_ME_Approval_Master_Deviasi")
 public class MasterDeviasi {
     private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) int id;
     private int app_level;

@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Data @Entity @NoArgsConstructor @AllArgsConstructor
-@Table(name = "SP_ME_Approval_DetailDeviasi")
+@Table(name = "SP_ME_Approval_Detail_Deviasi")
 public class DetailDeviasi {
     private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) int id;
     private Long master_id;

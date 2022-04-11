@@ -13,7 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Data @Entity @NoArgsConstructor @AllArgsConstructor
-@Table(name = "Log_API")
+@Table(name = "SP_ME_Approval_Log_Api")
 public class LogApi {
     private @Id @GeneratedValue(strategy=GenerationType.IDENTITY) int id;
     private String reqJSON;

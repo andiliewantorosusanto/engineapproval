@@ -1,7 +1,5 @@
 package com.bcafinance.engineapproval.response;
 
-import java.util.List;
-
 import com.bcafinance.engineapproval.constant.ErrorCode;
 
 import lombok.AllArgsConstructor;
